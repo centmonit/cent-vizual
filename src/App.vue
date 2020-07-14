@@ -1,19 +1,6 @@
 <template>
   <v-app>
-    <v-navigation-drawer app v-model="drawer" clipped _fixed _temporary _dark_>
-      <!-- <v-list-item>
-        <v-list-item-content>
-          <v-list-item-title class="title">
-            Application
-          </v-list-item-title>
-          <v-list-item-subtitle>
-            subtext
-          </v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
-
-      <v-divider></v-divider> -->
-
+    <!-- <v-navigation-drawer app v-model="drawer" clipped>
       <v-list dense nav>
         <v-list-item
           v-for="item in items"
@@ -28,16 +15,27 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
-    </v-navigation-drawer>
+    </v-navigation-drawer> -->
 
-    <v-app-bar app _dark_ clipped-left clipped-right>
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+    <v-app-bar app clipped-left clipped-right>
+      <v-app-bar-nav-icon _click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>Dashboard</v-toolbar-title>
+
+      <v-spacer/>
+
+      <v-tooltip bottom :open-delay="1000">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="changeDarkMode" v-bind="attrs" v-on="on">
+            <v-icon>mdi-theme-light-dark</v-icon>
+          </v-btn>
+        </template>
+        <span>Switch to day/night mode</span>
+      </v-tooltip>
     </v-app-bar>
 
-    <v-navigation-drawer v-model="drawerRight" app clipped right>
+    <!-- <v-navigation-drawer v-model="drawerRight" app clipped right>
       <v-subheader>Events</v-subheader>
-    </v-navigation-drawer>
+    </v-navigation-drawer> -->
 
     <!-- Sizes your content based upon application components -->
     <v-main>
@@ -79,7 +77,7 @@
       </v-container>
     </v-main>
 
-    <v-footer app _dark_ _class="grey _dark_en-3 white--text">
+    <v-footer app _class="grey _dark_en-3 white--text">
       <div _class="ml-3 text-caption text-sm-body-2">
           Made with <v-icon class="red--text" style="vertical-align: middle;" _large>mdi-heart-outline</v-icon>
           by <a _class="white--text" href="https://vuetifyjs.com" target="_blank">Vuetify</a>
@@ -168,6 +166,9 @@ export default {
         })
       }
       this.num++
+    },
+    changeDarkMode () {
+      this.$vuetify.theme.dark = !this.$vuetify.theme.dark
     }
   }
 };
