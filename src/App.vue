@@ -46,56 +46,33 @@
       <v-container fluid>
         <!-- If using vue-router -->
         <!-- <router-view></router-view> -->
-        <v-row>
-          <v-col v-for="n in 12" :key="n" cols="12" lg="3">
+
+        <v-row v-if="skeletonLoading">
+          <v-col v-for="n in 9" :key="n" cols="12" lg="3">
 
             <v-skeleton-loader
-              :loading="skeletonLoading"
+              _loading="skeletonLoading"
               transition="scale-transition"
               class="mx-auto"
               max-width="300"
-              type="card">
+              type="card"/>
 
-              <v-card class="mx-auto" max-width="350" @click="test">
+          </v-col>
+        </v-row>
 
-                <v-list-item two-line>
-                  <v-list-item-content>
-                    <v-list-item-title class="text-h6">Hostname {{n}}</v-list-item-title>
-                    <v-list-item-subtitle>
-                      123 days uptime
-                      <v-icon small>mdi-circle-small</v-icon>
-                      <span class="red--text">86% CPU</span>
-                      <v-icon small>mdi-circle-small</v-icon>
-                      <span class="orange--text">72% RAM</span>
-                    </v-list-item-subtitle>
-                  </v-list-item-content>
-                  <v-list-item-icon>
-                    <v-icon v-if="n%3==0" color="green">mdi-check-bold</v-icon>
-                    <v-icon v-if="n%3==1" color="red">mdi-alert</v-icon>
-                    <v-icon v-if="n%3==2" color="amber">mdi-alert</v-icon>
-                  </v-list-item-icon>
-                </v-list-item>
+        <v-row v-else-if="hostsReport.length == 0">
+          <v-col>
+            <v-alert text color="info" border="left">
+              <h3 class="headline">No host found</h3>
+              <div>Please follow setup guideline from installation folder to see how to add Monit host agent to CentMonit.</div>
+            </v-alert>
+          </v-col>
+        </v-row>
 
-                <v-card-text>
-                  <v-row class="text-center">
-                    <v-col cols="4">
-                      <div class="text-h4">3</div>
-                      <div>Total</div>
-                    </v-col>
-                    <v-col cols="4">
-                      <div class="text-h4">2</div>
-                      <div>OK</div>
-                    </v-col>
-                    <v-col cols="4">
-                      <div class="text-h4">1</div>
-                      <div>Skip</div>
-                    </v-col>
-                  </v-row>
-                </v-card-text>
+        <v-row v-else>
+          <v-col v-for="(item, index) in hostsReport" :key="index" cols="12" lg="3">
 
-              </v-card>
-
-            </v-skeleton-loader>
+              <HostCard :report="item" />
 
           </v-col>
         </v-row>
@@ -117,13 +94,14 @@
 </template>
 
 <script>
-// import HelloWorld from './components/HelloWorld';
+import HostCard from './components/HostCard';
+import axios from 'axios'
 
 export default {
   name: 'App',
 
   components: {
-    // HelloWorld,
+    HostCard
   },
 
   data: () => ({
@@ -135,16 +113,43 @@ export default {
       { title: 'Dashboard', icon: 'mdi-view-dashboard' },
       { title: 'Photos', icon: 'mdi-image' },
       { title: 'About', icon: 'mdi-help-box' },
+    ],
+
+    /** hostsReport: array of host report
+    [
+      {
+        "id": "9c8b9e3478dd15018389b2e2c8bf560e",
+        "hostname": "xxx",
+        "uptime": 9963646,
+        "ram": 22.2,
+        "cpu": 2.6000001,
+        "services": 9,
+        "goodServices": 9,
+        "skipServices": 0
+      }
     ]
+    */
+    hostsReport: []
   }),
 
   created () {
-    console.log('App::created...')
+    console.log('App::created()...')
     // this.$vuetify.theme.dark = true
 
-    setTimeout(() => {
+    axios.get(`${this.$GCONFIG.api_base_url}/api/hosts/report`).then(
+      response => {
+        console.log('App::created() - get report response:', response)
+        this.hostsReport = response.data
+      }
+    ).catch(
+      error => {
+        console.log('App::created() - get report error:', error)
+      }
+    )
+
+    setInterval(() => {
       this.skeletonLoading = false
-    }, 1500);
+    }, 1500)
   },
 
   methods: {

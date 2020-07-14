@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify'
+import axios from 'axios'
 
 Vue.config.productionTip = false
 
@@ -18,9 +19,15 @@ Vue.use(VueToast, {
   pauseOnHover: true
 })
 
-new Vue({
-  router,
-  store,
-  vuetify,
-  render: h => h(App)
-}).$mount('#app')
+axios.get('/config.json').then(
+  response => {
+    console.log('main() get config response:', response.data)
+    Vue.prototype.$GCONFIG = response.data
+    new Vue({
+      router,
+      store,
+      vuetify,
+      render: h => h(App)
+    }).$mount('#app')
+  }
+)
