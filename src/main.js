@@ -8,14 +8,14 @@ import axios from 'axios'
 Vue.config.productionTip = false
 
 import VueToast from 'vue-toast-notification'
-// import 'vue-toast-notification/dist/theme-default.css'
-import 'vue-toast-notification/dist/theme-sugar.css'
+import 'vue-toast-notification/dist/theme-default.css'
+// import 'vue-toast-notification/dist/theme-sugar.css'
 
 Vue.use(VueToast, {
   // One of options
   type: 'success',
-  position: 'top-right',
-  duration: 300000,
+  position: 'bottom',
+  duration: 5000,
   pauseOnHover: true
 })
 
