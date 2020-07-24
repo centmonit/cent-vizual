@@ -18,7 +18,8 @@
     </v-navigation-drawer> -->
 
     <v-app-bar app clipped-left clipped-right>
-      <v-app-bar-nav-icon _click="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon disabled _click="drawer = !drawer">
+      </v-app-bar-nav-icon>
       <v-toolbar-title>Dashboard</v-toolbar-title>
 
       <v-spacer/>
@@ -123,7 +124,8 @@
             </small>
           </v-row>
           <v-row>
-              <v-col v-for="(item, index) in hostsReport" _key="index" :key="`${index}-${item.alertMessage}`" cols="12" sm="6" md="4" lg="3">
+              <v-col v-for="(item, index) in hostsReport" _key="index" :key="`${index}-${item.alertMessage}`"
+                      cols="12" _sm="6" md="6" lg="4">
               <!-- <v-col v-for="index in 15" :key="index" cols="12" sm="6" md="4" lg="3"> -->
                 <HostCard :report="item" @hostStateChanged="onHostStateChanged" />
               </v-col>
@@ -213,7 +215,7 @@
 </template>
 
 <script>
-import HostCard from './components/HostCard';
+import HostCard from './components/HostCard'
 import axios from 'axios'
 import {mapState} from 'vuex'
 
