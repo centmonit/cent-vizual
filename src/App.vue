@@ -372,7 +372,7 @@ export default {
       this.lastReportTimeStyleClass = 'blinking'
       setTimeout(() => {
         this.lastReportTimeStyleClass = ''
-      }, 5500)
+      }, 3500)
     },
     __init_socket_connection__ () {
       this.socketConnection = new WebSocket(this.$GCONFIG.socket_url)
