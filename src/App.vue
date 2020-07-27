@@ -117,11 +117,11 @@
           <!-- ---------------------------------------- -->
 
           <v-row class="justify-center">
-            <small :class="[lastReportTimeStyleClass]" style="color: #2196F3">
+            <span :class="[lastReportTimeStyleClass]" style="color: #2196F3">
               Good hosts: {{ totalGoodHosts() }}/{{ Object.keys(hostsState).length }}
               -
               Last report: {{ lastHostsReportTime.toLocaleString() }}
-            </small>
+            </span>
           </v-row>
           <v-row>
               <v-col v-for="(item, index) in hostsReport" _key="index" :key="`${index}-${item.alertMessage}`"
