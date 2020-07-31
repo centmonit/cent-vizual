@@ -41,6 +41,10 @@
         </template>
         <span>Switch to day/night mode</span>
       </v-tooltip>
+
+      <v-btn icon @click="showSettingDialog=true">
+        <v-icon>mdi-cog</v-icon>
+      </v-btn>
     </v-app-bar>
 
     <!-- <v-navigation-drawer v-model="drawerRight" app clipped right>
@@ -60,7 +64,12 @@
         Lost socket connection to API Server
 
         <template v-slot:actions>
-          <v-btn text color="primary" @click="reconnectSocket">Reconnect</v-btn>
+          <v-btn text color="primary"
+                  :loading="btnSocketReconnectLoading"
+                  :disabled="btnSocketReconnectLoading"
+                  @click="reconnectSocket">
+            Reconnect
+          </v-btn>
         </template>
       </v-banner>
 
@@ -160,8 +169,8 @@
             <v-card-text style="height: 80vh; overflow-y: scroll;" class="pt-4">
               <div class="text-center" v-if="!socketConnected">
                 <v-btn
-                  _loading="btnSocketReconnectLoading"
-                  _disabled="btnSocketReconnectLoading"
+                  :loading="btnSocketReconnectLoading"
+                  :disabled="btnSocketReconnectLoading"
                   outlined
                   color="primary"
                   class="mb-2"
@@ -198,6 +207,9 @@
           </v-card>
         </v-bottom-sheet>
 
+        <!-- Setting dialog -->
+        <Setting v-if="showSettingDialog" @closeDialog="showSettingDialog=false"/>
+
       </v-container>
     </v-main>
 
@@ -216,6 +228,7 @@
 
 <script>
 import HostCard from './components/HostCard'
+import Setting from './components/Setting'
 import axios from 'axios'
 import {mapState} from 'vuex'
 
@@ -223,7 +236,8 @@ export default {
   name: 'App',
 
   components: {
-    HostCard
+    HostCard,
+    Setting
   },
 
   data: () => ({
@@ -273,7 +287,9 @@ export default {
     },
     hostsNextReportTime: {
       /* id : timestamp */
-    }
+    },
+
+    showSettingDialog: false
   }),
 
   computed: {
