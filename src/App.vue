@@ -374,6 +374,9 @@ export default {
             if (element.id === hostID) {
               console.warn('No report from ', hostID, '-', element.hostname)
               element.alertMessage = 'No report within poll cycle'
+              if (!this.socketConnected) {
+                console.warn('Pls check socket connection...')
+              }
             }
           })
         }
