@@ -19,6 +19,10 @@
             <v-row justify="center">
 
               <v-col cols="12">
+                <v-text-field label="Name*" v-model="channelObj.name" clearable />
+              </v-col>
+
+              <v-col cols="12">
                 <!-- <span>Type</span> -->
                 <v-btn-toggle v-model="channelObj.type" rounded borderless dense mandatory style="width: 100%">
                   <v-btn small style="width: 50%" value="SLACK_WEBHOOKS">
@@ -32,10 +36,6 @@
                     <!-- <v-icon>mdi-email</v-icon> -->
                   </v-btn>
                 </v-btn-toggle>
-              </v-col>
-
-              <v-col cols="12">
-                <v-text-field label="Name*" v-model="channelObj.name" clearable />
               </v-col>
 
               <!-- SMTP -->
