@@ -111,7 +111,7 @@ export default {
 
       // change request to matching API (fuck GoLang)
       requestObj.type = (requestObj.type === 'SLACK_WEBHOOKS') ? 1 : 2
-      requestObj.ssl = requestObj.ssl ? 1 : 0
+      // requestObj.ssl = requestObj.ssl ? 1 : 0
 
       axios.post(
         `${this.$GCONFIG.api_base_url}/api/channels`,
