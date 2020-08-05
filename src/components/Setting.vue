@@ -17,15 +17,15 @@
 
       <v-tabs v-model="currentTab" right>
         <v-tab href="#tabAlertRule">Alert Rules</v-tab>
-        <v-tab href="#tabChannel">Channels</v-tab>
-        <v-tab href="#tabMailGroup">Mail Groups</v-tab>
+        <v-tab href="#tabChannel">Alert Channels</v-tab>
+        <!-- <v-tab href="#tabMailGroup">Mail Groups</v-tab> -->
       </v-tabs>
 
       <v-card-text>
         <v-tabs-items v-model="currentTab">
           <!-- tab 1 -->
           <v-tab-item value="tabAlertRule">
-            tabAlert
+            <TabViewAlertRule />
           </v-tab-item>
 
           <!-- tab 2 -->
@@ -51,10 +51,13 @@
 
 <script>
 import TabViewChannel from '@/components/TabViewChannel'
+import TabViewAlertRule from '@/components/TabViewAlertRule'
+import axios from 'axios'
 
 export default {
   components: {
-    TabViewChannel
+    TabViewChannel,
+    TabViewAlertRule
   },
 
   data: () => ({
@@ -62,6 +65,25 @@ export default {
     showEditForm: false,
     currentEditForm: null
   }),
+
+  mounted () {
+    // Pre-fetch channel data to use for rule creation form
+    axios.get(`${this.$GCONFIG.api_base_url}/api/channels`).then(
+      response => {
+        console.log('TabViewChannel::created() - api response:', response)
+        if (response.data.length > 0) {
+          this.$store.commit('PURGE_ALERT_CHANNEL')
+          response.data.forEach(element => {
+            this.$store.commit('ADD_ALERT_CHANNEL', element)
+          })
+        }
+      }
+    ).catch(
+      error => {
+        console.log('TabViewChannel::created() - api error:', error)
+      }
+    )
+  },
 
   methods: {
     createSomethingNew () {

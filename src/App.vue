@@ -330,6 +330,7 @@ export default {
         this.hostsReport = response.data
         this.lastHostsReportTime = new Date()
         this.hostsReport.forEach(element => {
+          this.$store.commit('ADD_HOST', element.hostname)
           if (!element.alertMessage) {
             this.$set(this.hostsNextReportTime, element.id, (new Date()).getTime()+element.poll*1000)
           }
@@ -341,12 +342,13 @@ export default {
         this.apiError = true
         this.apiErrorMessage = error.message
       }
+    ).finally(
+      () => {
+        setTimeout(() => {
+          this.skeletonLoading = false
+        }, 1500)
+      }
     )
-
-    setTimeout(() => {
-      this.skeletonLoading = false
-    }, 1500)
-
     this.__init_socket_connection__()
   },
 
@@ -365,7 +367,7 @@ export default {
     // set new job
     jobID = setInterval(() => {
       let tmp = this.hostsNextReportTime
-      console.warn((new Date()).toLocaleTimeString() + ' - hostsNextReportTime:', JSON.stringify(tmp))
+      // console.warn((new Date()).toLocaleTimeString() + ' - hostsNextReportTime:', JSON.stringify(tmp))
       Object.keys(tmp).forEach(hostID => {
         let ts = tmp[hostID]
         let current = (new Date()).getTime()
@@ -414,7 +416,7 @@ export default {
         this.socketConnected = false
       }
       this.socketConnection.onmessage = (event) => {
-        console.log("App::socket::onmessage - data:", event.data)
+        // console.log("App::socket::onmessage - data:", event.data)
         let eventObj = JSON.parse(event.data)
 
         if (eventObj.channel === 'EVENT') {
@@ -435,9 +437,9 @@ export default {
                 if (eventObj.type === 'error') {
                   element.alertMessage = eventObj.message
                   // remove this host from nextNeportTime object
-                  console.warn('Var before delete:', JSON.stringify(this.hostsNextReportTime))
+                  // console.warn('Var before delete:', JSON.stringify(this.hostsNextReportTime))
                   delete this.hostsNextReportTime[element.id]
-                  console.warn('Var after delete:', JSON.stringify(this.hostsNextReportTime))
+                  // console.warn('Var after delete:', JSON.stringify(this.hostsNextReportTime))
                 } else if (eventObj.type === 'success') {
                   element.alertMessage = ''
                 }
@@ -453,7 +455,7 @@ export default {
           for (let i = 0; i < this.hostsReport.length; i++) {
             let element = this.hostsReport[i];
             if (element.id === eventObj.id) {
-              console.log('App::socket::onmessage - found host to update')
+              // console.log('App::socket::onmessage - found host to update')
 
               element.poll = eventObj.poll
               element.uptime = eventObj.uptime
@@ -474,7 +476,7 @@ export default {
           }
 
           if (!oldHost) {
-            console.log('App::socket::onmessage - new host report')
+            // console.log('App::socket::onmessage - new host report')
             this.hostsReport.push({
               id: eventObj.id,
               poll: eventObj.poll,
@@ -488,6 +490,8 @@ export default {
               skipServices: eventObj.skipServices
             })
             this.$set(this.hostsNextReportTime, eventObj.id, (new Date()).getTime()+eventObj.poll*1000)
+            // save new host
+            this.$store.commit('ADD_HOST', eventObj.hostname)
           }
         }
       }

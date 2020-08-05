@@ -85,7 +85,7 @@
 
 <script>
 import axios from 'axios'
-import {EventBus} from '@/main'
+// import {EventBus} from '@/main'
 
 export default {
   data: () => ({
@@ -122,7 +122,8 @@ export default {
           if (response.data) {
             if (response.data.status === 'success') {
               requestObj.id = response.data.id
-              EventBus.$emit('NEW_CHANNEL_INSERTED', requestObj)
+              // EventBus.$emit('NEW_CHANNEL_INSERTED', requestObj)
+              this.$store.commit('ADD_ALERT_CHANNEL', requestObj)
               this.$emit('closeDialog')
             } else {
               console.warn('TabEditorChannel::saveChannel() - something is wrongs at backend')

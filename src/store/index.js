@@ -17,7 +17,9 @@ export default new Vuex.Store({
   plugins: [vuexPersist.plugin],
   state: {
     app_dark_mode: false, // day/night mode
-    alert_messages: []
+    alert_messages: [],
+    hostnames: [],
+    alert_channels: []
   },
   mutations: {
     SET_DARK_MODE (state, payload /* bool */) {
@@ -32,6 +34,52 @@ export default new Vuex.Store({
     },
     CLEAR_ALERT_MESSAGES (state) {
       state.alert_messages = []
+    },
+    ADD_HOST (state, payload /* hostname: string */) {
+      if (state.hostnames.indexOf(payload) === -1) {
+        state.hostnames.splice(0, 0, payload)
+      }
+    },
+    PURGE_ALERT_CHANNEL (state) {
+      state.alert_channels = []
+    },
+    ADD_ALERT_CHANNEL (state, payload /* channel object */) {
+      state.alert_channels.splice(0, 0, payload)
+    },
+    REMOVE_ALERT_CHANNEL (state, id) {
+      for (let index = 0; index < state.alert_channels.length; index++) {
+        if (state.alert_channels[index].id === id) {
+          state.alert_channels.splice(index, 1)
+          break
+        }
+      }
+    }
+  },
+  getters: {
+    host_array: state => state.hostnames,
+    slack_iwh_alert_channel (state) {
+      let result = []
+      state.alert_channels.forEach(item => {
+        if (item.type === 1) {
+          result.push({
+            id: item.id,
+            name: item.name
+          })
+        }
+      })
+      return result
+    },
+    smtp_alert_channel (state) {
+      let result = []
+      state.alert_channels.forEach(item => {
+        if (item.type === 2) {
+          result.push({
+            id: item.id,
+            name: item.name
+          })
+        }
+      })
+      return result
     }
   },
   actions: {
