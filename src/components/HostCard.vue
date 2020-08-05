@@ -125,8 +125,8 @@ export default {
 
   watch: {
     tooltipModel: function (value) {
-      if (!value) {
-        // pre-fetch data from API
+      if (value) {
+        // fetch data from API
         this.__pre_fetch_services__()
       }
     },

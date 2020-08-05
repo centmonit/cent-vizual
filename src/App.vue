@@ -41,6 +41,10 @@
         </template>
         <span>Switch to day/night mode</span>
       </v-tooltip>
+
+      <v-btn icon @click="showSettingDialog=true">
+        <v-icon>mdi-cog</v-icon>
+      </v-btn>
     </v-app-bar>
 
     <!-- <v-navigation-drawer v-model="drawerRight" app clipped right>
@@ -60,7 +64,12 @@
         Lost socket connection to API Server
 
         <template v-slot:actions>
-          <v-btn text color="primary" @click="reconnectSocket">Reconnect</v-btn>
+          <v-btn text color="primary"
+                  :loading="btnSocketReconnectLoading"
+                  :disabled="btnSocketReconnectLoading"
+                  @click="reconnectSocket">
+            Reconnect
+          </v-btn>
         </template>
       </v-banner>
 
@@ -160,8 +169,8 @@
             <v-card-text style="height: 80vh; overflow-y: scroll;" class="pt-4">
               <div class="text-center" v-if="!socketConnected">
                 <v-btn
-                  _loading="btnSocketReconnectLoading"
-                  _disabled="btnSocketReconnectLoading"
+                  :loading="btnSocketReconnectLoading"
+                  :disabled="btnSocketReconnectLoading"
                   outlined
                   color="primary"
                   class="mb-2"
@@ -198,6 +207,9 @@
           </v-card>
         </v-bottom-sheet>
 
+        <!-- Setting dialog -->
+        <Setting v-if="showSettingDialog" @closeDialog="showSettingDialog=false"/>
+
       </v-container>
     </v-main>
 
@@ -216,6 +228,7 @@
 
 <script>
 import HostCard from './components/HostCard'
+import Setting from './components/Setting'
 import axios from 'axios'
 import {mapState} from 'vuex'
 
@@ -223,7 +236,8 @@ export default {
   name: 'App',
 
   components: {
-    HostCard
+    HostCard,
+    Setting
   },
 
   data: () => ({
@@ -273,7 +287,9 @@ export default {
     },
     hostsNextReportTime: {
       /* id : timestamp */
-    }
+    },
+
+    showSettingDialog: false
   }),
 
   computed: {
@@ -314,6 +330,7 @@ export default {
         this.hostsReport = response.data
         this.lastHostsReportTime = new Date()
         this.hostsReport.forEach(element => {
+          this.$store.commit('ADD_HOST', element.hostname)
           if (!element.alertMessage) {
             this.$set(this.hostsNextReportTime, element.id, (new Date()).getTime()+element.poll*1000)
           }
@@ -325,12 +342,13 @@ export default {
         this.apiError = true
         this.apiErrorMessage = error.message
       }
+    ).finally(
+      () => {
+        setTimeout(() => {
+          this.skeletonLoading = false
+        }, 1500)
+      }
     )
-
-    setTimeout(() => {
-      this.skeletonLoading = false
-    }, 1500)
-
     this.__init_socket_connection__()
   },
 
@@ -349,7 +367,7 @@ export default {
     // set new job
     jobID = setInterval(() => {
       let tmp = this.hostsNextReportTime
-      console.warn((new Date()).toLocaleTimeString() + ' - hostsNextReportTime:', JSON.stringify(tmp))
+      // console.warn((new Date()).toLocaleTimeString() + ' - hostsNextReportTime:', JSON.stringify(tmp))
       Object.keys(tmp).forEach(hostID => {
         let ts = tmp[hostID]
         let current = (new Date()).getTime()
@@ -358,6 +376,9 @@ export default {
             if (element.id === hostID) {
               console.warn('No report from ', hostID, '-', element.hostname)
               element.alertMessage = 'No report within poll cycle'
+              if (!this.socketConnected) {
+                console.warn('Pls check socket connection...')
+              }
             }
           })
         }
@@ -395,7 +416,7 @@ export default {
         this.socketConnected = false
       }
       this.socketConnection.onmessage = (event) => {
-        console.log("App::socket::onmessage - data:", event.data)
+        // console.log("App::socket::onmessage - data:", event.data)
         let eventObj = JSON.parse(event.data)
 
         if (eventObj.channel === 'EVENT') {
@@ -416,9 +437,9 @@ export default {
                 if (eventObj.type === 'error') {
                   element.alertMessage = eventObj.message
                   // remove this host from nextNeportTime object
-                  console.warn('Var before delete:', JSON.stringify(this.hostsNextReportTime))
+                  // console.warn('Var before delete:', JSON.stringify(this.hostsNextReportTime))
                   delete this.hostsNextReportTime[element.id]
-                  console.warn('Var after delete:', JSON.stringify(this.hostsNextReportTime))
+                  // console.warn('Var after delete:', JSON.stringify(this.hostsNextReportTime))
                 } else if (eventObj.type === 'success') {
                   element.alertMessage = ''
                 }
@@ -434,7 +455,7 @@ export default {
           for (let i = 0; i < this.hostsReport.length; i++) {
             let element = this.hostsReport[i];
             if (element.id === eventObj.id) {
-              console.log('App::socket::onmessage - found host to update')
+              // console.log('App::socket::onmessage - found host to update')
 
               element.poll = eventObj.poll
               element.uptime = eventObj.uptime
@@ -455,7 +476,7 @@ export default {
           }
 
           if (!oldHost) {
-            console.log('App::socket::onmessage - new host report')
+            // console.log('App::socket::onmessage - new host report')
             this.hostsReport.push({
               id: eventObj.id,
               poll: eventObj.poll,
@@ -469,6 +490,8 @@ export default {
               skipServices: eventObj.skipServices
             })
             this.$set(this.hostsNextReportTime, eventObj.id, (new Date()).getTime()+eventObj.poll*1000)
+            // save new host
+            this.$store.commit('ADD_HOST', eventObj.hostname)
           }
         }
       }

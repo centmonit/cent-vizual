@@ -11,6 +11,8 @@ import VueToast from 'vue-toast-notification'
 import 'vue-toast-notification/dist/theme-default.css'
 // import 'vue-toast-notification/dist/theme-sugar.css'
 
+export const EventBus = new Vue()
+
 Vue.use(VueToast, {
   // One of options
   type: 'success',
