@@ -400,6 +400,9 @@ export default {
       this.socketConnection.onopen = () => {
         console.log("App::socket::onopen...")
         this.socketConnected = true
+        if (this.btnSocketReconnectLoading) {
+          this.btnSocketReconnectLoading = false
+        }
       }
       this.socketConnection.onerror = () => {
         console.error("App::socket::error...")
