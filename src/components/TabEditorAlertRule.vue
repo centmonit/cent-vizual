@@ -8,7 +8,7 @@
         <v-stepper-step :complete="currentStep > 2" step="2">Filters</v-stepper-step>
         <v-divider />
 
-        <v-stepper-step step="3">Alert configuration</v-stepper-step>
+        <v-stepper-step step="3">Alert Configuration</v-stepper-step>
       </v-stepper-header>
 
       <v-stepper-items>
@@ -329,6 +329,7 @@ export default {
           }
         })
       } else {
+        this.modelAlertChannel.smtpReceivers = null
         this.$store.getters.slack_iwh_alert_channel.forEach(item => {
           if (item.id === _id) {
             this.modelAlertChannel.name = item.name

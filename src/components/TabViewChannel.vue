@@ -7,7 +7,7 @@
           <v-card min-height="195" min-width="195">
             <v-card-title>
               <v-icon small left>{{ getChannelTypeIcon(alert_channels[(rowIndex-1)*3+(colIndex-1)].type) }}</v-icon>
-              <span class="text-subtitle-2 d-inline-block text-truncate" :style="cardTitleNameStyle">{{ alert_channels[(rowIndex-1)*3+(colIndex-1)].name }}</span>
+              <span class="text-subtitle-2 d-inline-block _text-truncate" :style="cardTitleNameStyle">{{ alert_channels[(rowIndex-1)*3+(colIndex-1)].name }}</span>
 
               <v-spacer />
               <!-- <v-btn icon><v-icon small>mdi-pencil</v-icon></v-btn> -->
@@ -16,8 +16,16 @@
 
             <!-- Slack webhook -->
             <v-card-text v-if="alert_channels[(rowIndex-1)*3+(colIndex-1)].type === 1">
-              <span class="text-caption text--disabled">Webhook URL</span>&nbsp;&nbsp;&nbsp;
-              <span class="text-body-2">{{ alert_channels[(rowIndex-1)*3+(colIndex-1)].webhook_url }}</span>
+              <div>
+                <span class="text-caption text--disabled">Sender</span>&nbsp;&nbsp;&nbsp;
+                <span class="text-body-2">
+                  {{ alert_channels[(rowIndex-1)*3+(colIndex-1)].customText ? alert_channels[(rowIndex-1)*3+(colIndex-1)].customText : 'n/a' }}
+                </span>
+              </div>
+              <div>
+                <span class="text-caption text--disabled">Webhook URL</span>&nbsp;&nbsp;&nbsp;
+                <span class="text-body-2">{{ alert_channels[(rowIndex-1)*3+(colIndex-1)].webhook_url }}</span>
+              </div>
             </v-card-text>
 
             <!-- SMTP -->
@@ -30,23 +38,37 @@
                 <span class="text-caption text--disabled">Port</span>&nbsp;&nbsp;&nbsp;
                 <span class="text-body-2">{{ alert_channels[(rowIndex-1)*3+(colIndex-1)].port }}</span>
               </div>
-              <div>
+              <!-- <div>
                 <span class="text-caption text--disabled">SSL</span>&nbsp;&nbsp;&nbsp;
                 <span class="text-body-2">
                   {{ alert_channels[(rowIndex-1)*3+(colIndex-1)].ssl ? 'Yes' : 'No' }}
                 </span>
-              </div>
+              </div> -->
+
               <div>
-                <span class="text-caption text--disabled">Username</span>&nbsp;&nbsp;&nbsp;
+                <span class="text-caption text--disabled">Sender</span>&nbsp;&nbsp;&nbsp;
                 <span class="text-body-2">
-                  {{ alert_channels[(rowIndex-1)*3+(colIndex-1)].user ? alert_channels[(rowIndex-1)*3+(colIndex-1)].user : 'N/A' }}
+                  {{ alert_channels[(rowIndex-1)*3+(colIndex-1)].customText ? alert_channels[(rowIndex-1)*3+(colIndex-1)].customText : 'n/a' }}
                 </span>
               </div>
-              <div>
-                <span class="text-caption text--disabled">Password</span>&nbsp;&nbsp;&nbsp;
-                <span class="text-body-2">
-                  {{ alert_channels[(rowIndex-1)*3+(colIndex-1)].passwd ? alert_channels[(rowIndex-1)*3+(colIndex-1)].passwd : 'N/A' }}
-                </span>
+
+              <template v-if="smtpAuthEnable(alert_channels[(rowIndex-1)*3+(colIndex-1)])">
+                <div>
+                  <span class="text-caption text--disabled">Username</span>&nbsp;&nbsp;&nbsp;
+                  <span class="text-body-2">
+                    {{ alert_channels[(rowIndex-1)*3+(colIndex-1)].user ? alert_channels[(rowIndex-1)*3+(colIndex-1)].user : 'n/a' }}
+                  </span>
+                </div>
+                <div>
+                  <span class="text-caption text--disabled">Password</span>&nbsp;&nbsp;&nbsp;
+                  <span class="text-body-2">
+                    {{ alert_channels[(rowIndex-1)*3+(colIndex-1)].passwd ? alert_channels[(rowIndex-1)*3+(colIndex-1)].passwd : 'n/a' }}
+                  </span>
+                </div>
+              </template>
+              <div v-else>
+                <span class="text-caption text--disabled">Auth</span>&nbsp;&nbsp;&nbsp;
+                <span class="text-body-2">Not required</span>
               </div>
             </v-card-text>
 
@@ -119,6 +141,9 @@ export default {
           console.log('TabViewChannel::removeChannel() - get report error:', error)
         }
       )
+    },
+    smtpAuthEnable(channel) {
+      return channel.user && channel.passwd
     }
   }
 }

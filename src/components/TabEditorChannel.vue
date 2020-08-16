@@ -44,25 +44,36 @@
                   <v-text-field label="Server hostname or IP*" v-model="channelObj.host" />
                 </v-col>
 
-                <v-col cols="8" sm="4">
+                <v-col cols="12" sm="6">
                   <v-text-field label="Server port*"  type="number" v-model="channelObj.port" />
                 </v-col>
 
-                <v-col cols="4" sm="2">
-                  <v-switch label="SSL" dense v-model="channelObj.ssl" />
+                <v-col cols="8" sm="8">
+                  <v-text-field label="Sender Name" v-model="channelObj.customText"
+                                :persistent-hint="true"
+                                hint="Use this field to differentiate alert messages from different Systems/Datacenters" />
                 </v-col>
 
-                <v-col cols="12" sm="6">
-                  <v-text-field label="Username" v-model="channelObj.user" />
+                <v-col cols="4" sm="4">
+                  <v-switch label="Authentication" dense v-model="channelObj.authEnable" />
                 </v-col>
 
-                <v-col cols="12" sm="6">
-                  <v-text-field label="Password" v-model="channelObj.passwd" />
+                <v-col cols="12" sm="6" v-if="channelObj.authEnable">
+                  <v-text-field label="Username*" v-model="channelObj.user" />
+                </v-col>
+
+                <v-col cols="12" sm="6" v-if="channelObj.authEnable">
+                  <v-text-field label="Password*" v-model="channelObj.passwd" />
                 </v-col>
               </template>
 
               <!-- SLACK -->
               <template v-else>
+                <v-col cols="12">
+                  <v-text-field label="Sender Name" v-model="channelObj.customText"
+                                :persistent-hint="true"
+                                hint="Use this field to differentiate alert messages from different Systems/Datacenters" />
+                </v-col>
                 <v-col cols="12">
                   <v-text-field label="Webhook URL*" v-model="channelObj.webhook_url" />
                 </v-col>
@@ -96,11 +107,13 @@ export default {
       // for slack channel
       webhook_url: null,
       // for smtp channel
-      host: null,
+      host: 'smtp.gmail.com',
       port: 587,
       ssl: true,
       user: null,
-      passwd: null
+      passwd: null,
+      authEnable: false,
+      customText: 'CentMonit'
     }
   }),
 
@@ -111,7 +124,11 @@ export default {
 
       // change request to matching API (fuck GoLang)
       requestObj.type = (requestObj.type === 'SLACK_WEBHOOKS') ? 1 : 2
-      // requestObj.ssl = requestObj.ssl ? 1 : 0
+      // delete requestObj.authEnable
+      if (!requestObj.authEnable) {
+        requestObj.user = null
+        requestObj.passwd = null
+      }
 
       axios.post(
         `${this.$GCONFIG.api_base_url}/api/channels`,
