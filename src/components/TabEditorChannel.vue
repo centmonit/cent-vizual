@@ -41,15 +41,15 @@
               <!-- SMTP -->
               <template v-if="channelObj.type==='SMTP'">
                 <v-col cols="12" sm="6">
-                  <v-text-field label="Server hostname or IP*" v-model="channelObj.host" />
+                  <v-text-field label="Server hostname or IP*" v-model="channelObj.host" clearable />
                 </v-col>
 
                 <v-col cols="12" sm="6">
-                  <v-text-field label="Server port*"  type="number" v-model="channelObj.port" />
+                  <v-text-field label="Server port*"  type="number" v-model="channelObj.port" clearable />
                 </v-col>
 
                 <v-col cols="8" sm="8">
-                  <v-text-field label="Sender Name" v-model="channelObj.customText"
+                  <v-text-field label="Sender Name*" v-model="channelObj.customText" clearable
                                 :persistent-hint="true"
                                 hint="Use this field to differentiate alert messages from different Systems/Datacenters" />
                 </v-col>
@@ -59,23 +59,23 @@
                 </v-col>
 
                 <v-col cols="12" sm="6" v-if="channelObj.authEnable">
-                  <v-text-field label="Username*" v-model="channelObj.user" />
+                  <v-text-field label="Username*" v-model="channelObj.user" clearable />
                 </v-col>
 
                 <v-col cols="12" sm="6" v-if="channelObj.authEnable">
-                  <v-text-field label="Password*" v-model="channelObj.passwd" />
+                  <v-text-field label="Password*" v-model="channelObj.passwd" clearable />
                 </v-col>
               </template>
 
               <!-- SLACK -->
               <template v-else>
                 <v-col cols="12">
-                  <v-text-field label="Sender Name" v-model="channelObj.customText"
+                  <v-text-field label="Sender Name*" v-model="channelObj.customText" clearable
                                 :persistent-hint="true"
                                 hint="Use this field to differentiate alert messages from different Systems/Datacenters" />
                 </v-col>
                 <v-col cols="12">
-                  <v-text-field label="Webhook URL*" v-model="channelObj.webhook_url" />
+                  <v-text-field label="Webhook URL*" v-model="channelObj.webhook_url" clearable />
                 </v-col>
               </template>
 
@@ -87,7 +87,7 @@
       <v-card-actions>
         <v-spacer  />
         <v-btn text @click="$emit('closeDialog')">Close</v-btn>
-        <v-btn text color="primary" @click="saveChannel">Save</v-btn>
+        <v-btn text color="primary" @click="saveChannel" :disabled="disableSaveButton">Save</v-btn>
       </v-card-actions>
 
     </v-card>
@@ -127,6 +127,20 @@ export default {
   computed: {
     enableEditChannelType () {
       return this.mode === 'NEW'
+    },
+    disableSaveButton () {
+      if (this.channelObj.type === 'SLACK_WEBHOOKS') {
+        return !this.channelObj.name || !this.channelObj.webhook_url || !this.channelObj.customText
+      } else {
+        return (
+          !this.channelObj.name ||
+          !this.channelObj.customText ||
+          !this.channelObj.host ||
+          !this.channelObj.port || (
+            this.channelObj.authEnable && (!this.channelObj.user || !this.channelObj.passwd)
+          )
+        )
+      }
     }
   },
 
