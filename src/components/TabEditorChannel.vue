@@ -19,7 +19,7 @@
             <v-row justify="center">
 
               <v-col cols="12">
-                <v-text-field label="Name*" v-model="channelObj.name" clearable />
+                <v-text-field label="Name*" v-model="channelObj.name" :disabled="mode==='EDIT'" clearable />
               </v-col>
 
               <v-col cols="12">
