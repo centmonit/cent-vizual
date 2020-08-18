@@ -4,13 +4,13 @@
     <v-row v-for="rowIndex in Math.ceil(alert_channels.length/3)" :key="`row-${rowIndex}`">
       <template v-for="colIndex in 3">
         <v-col v-if="(rowIndex-1)*3+(colIndex-1) < alert_channels.length" :key="`col-${rowIndex}-${colIndex}`">
-          <v-card min-height="195" min-width="195">
+          <v-card min-height="215" min-width="195">
             <v-card-title>
               <v-icon small left>{{ getChannelTypeIcon(alert_channels[(rowIndex-1)*3+(colIndex-1)].type) }}</v-icon>
               <span class="text-subtitle-2 d-inline-block _text-truncate" :style="cardTitleNameStyle">{{ alert_channels[(rowIndex-1)*3+(colIndex-1)].name }}</span>
 
               <v-spacer />
-              <!-- <v-btn icon><v-icon small>mdi-pencil</v-icon></v-btn> -->
+              <v-btn icon @click="editChannel(alert_channels[(rowIndex-1)*3+(colIndex-1)])"><v-icon small>mdi-pencil</v-icon></v-btn>
               <v-btn icon @click="removeChannel(alert_channels[(rowIndex-1)*3+(colIndex-1)].id)"><v-icon small>mdi-delete</v-icon></v-btn>
             </v-card-title>
 
@@ -77,6 +77,9 @@
       </template>
     </v-row>
 
+    <TabEditorChannel v-if="showEditForm" @closeDialog="showEditForm=false"
+                      mode="EDIT" :channelPropObject="editedObject" />
+
   </v-container>
 </template>
 
@@ -84,9 +87,16 @@
 import axios from 'axios'
 // import {EventBus} from '@/main'
 import {mapState} from 'vuex'
+import TabEditorChannel from '@/components/TabEditorChannel'
 
 export default {
+  components: {
+    TabEditorChannel
+  },
+
   data: () => ({
+    showEditForm: false,
+    editedObject: {}
   }),
 
   computed: {
@@ -141,6 +151,10 @@ export default {
           console.log('TabViewChannel::removeChannel() - get report error:', error)
         }
       )
+    },
+    editChannel (item) {
+      this.showEditForm = true
+      this.editedObject = item
     },
     smtpAuthEnable(channel) {
       return channel.user && channel.passwd

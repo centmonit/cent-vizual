@@ -6,8 +6,9 @@
         <tr>
           <th class="text-left">Rule Name</th>
           <th class="text-left">Filters</th>
-          <th class="text-left">Alert configuration</th>
+          <th class="text-left">Alert Configuration</th>
           <th class="text-left">Actions</th>
+          <th class="text-left">Active</th>
         </tr>
       </thead>
       <tbody>
@@ -18,6 +19,9 @@
           <td>
             <v-btn icon @click="editRow(item.id, index)"><v-icon small>mdi-pencil</v-icon></v-btn>
             <v-btn icon @click="deleteRow(item.id, index)"><v-icon small>mdi-delete</v-icon></v-btn>
+          </td>
+          <td>
+            <v-switch dense v-model="item.active" />
           </td>
         </tr>
       </tbody>
@@ -45,12 +49,51 @@ export default {
     editedObject: {}
   }),
 
+  computed: {
+    ruleActiveArray () {
+      return this.alertRules.map(item => item.active)
+    }
+  },
+
+  watch: {
+    ruleActiveArray: {
+      handler (newValue, oldValue) {
+        if (newValue.length === oldValue.length) {
+          let changedObject = {
+            index: -1,
+            value: null
+          }
+          for (let index = 0; index < newValue.length; index++) {
+            const newItem = newValue[index]
+            const oldItem = oldValue[index]
+            if (newItem !== oldItem) {
+              changedObject.value = newItem
+              changedObject.index = index
+              break
+            }
+          }
+          console.log('TabViewAlertRule::watch::ruleActiveArray - changed object:'
+          , JSON.stringify(changedObject))
+          this.changeActiveState(changedObject)
+        } else {
+          console.log('TabViewAlertRule::watch::ruleActiveArray - skip inserted item or first load')
+        } // end if
+      },
+      deep: true
+    }
+  },
+
   created () {
     axios.get(`${this.$GCONFIG.api_base_url}/api/alert-rules`).then(
       response => {
         console.log('TabViewAlertRule::created() - api response:', response)
         if (response.data.length > 0) {
           response.data.forEach(element => {
+            if (element.active === 1) {
+              element.active = true
+            } else {
+              element.active = false
+            }
             this.alertRules.push(element)
           })
         }
@@ -64,7 +107,6 @@ export default {
 
   mounted () {
     EventBus.$on('NEW_ALERT_RULE_INSERTED', this.__rule_insert_handler__)
-
     EventBus.$on('NEW_ALERT_RULE_UPDATED', this.__rule_update_handler__)
   },
 
@@ -75,6 +117,7 @@ export default {
 
   methods: {
     __rule_insert_handler__ (item) {
+      item.active = true
       console.warn('TabViewAlertRule::__rule_insert_handler__() - item:', item)
       this.alertRules.splice(0, 0, item)
     },
@@ -141,6 +184,33 @@ export default {
       ).catch(
         error => {
           console.log('TabViewAlertRule::deleteRow() - get report error:', error)
+        }
+      )
+    },
+    changeActiveState ({index, value}) {
+      console.log('TabViewAlertRule::changeActiveState() - index:', index, '- item:', value)
+      let newActiveState = value ? 1 : -1
+      let requestConfig = {
+        headers: {
+          'Content-Type': 'text/plain'
+        }
+      }
+      axios.put(
+        `${this.$GCONFIG.api_base_url}/api/alert-rules/${this.alertRules[index].id}/active`,
+        newActiveState,
+        requestConfig
+      ).then(
+        response => {
+          console.log('TabViewAlertRule::changeActiveState() - api response:', response)
+          if (response.data) {
+            if (!response.data.status === 'success') {
+              console.warn('TabViewAlertRule::changeActiveState() - something is wrongs at backend')
+            }
+          }
+        }
+      ).catch(
+        error => {
+          console.log('TabViewAlertRule::changeActiveState() - api error:', error)
         }
       )
     }

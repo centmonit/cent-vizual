@@ -53,11 +53,20 @@ export default new Vuex.Store({
           break
         }
       }
+    },
+    UPDATE_ALERT_CHANNEL (state, payload) {
+      for (let index = 0; index < state.alert_channels.length; index++) {
+        if (state.alert_channels[index].id === payload.id) {
+          Vue.set(state.alert_channels, index, payload)
+          break
+        }
+      }
     }
   },
   getters: {
     host_array: state => state.hostnames,
     slack_iwh_alert_channel (state) {
+      console.warn('vuex getter slack_iwh_alert_channel was called on', (new Date()).toDateString())
       let result = []
       state.alert_channels.forEach(item => {
         if (item.type === 1) {
@@ -70,6 +79,7 @@ export default new Vuex.Store({
       return result
     },
     smtp_alert_channel (state) {
+      console.warn('vuex getter smtp_alert_channel was called on', (new Date()).toDateString())
       let result = []
       state.alert_channels.forEach(item => {
         if (item.type === 2) {

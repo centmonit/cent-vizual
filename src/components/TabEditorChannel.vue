@@ -1,10 +1,10 @@
 <template>
-  <v-dialog :value="true" max-width="600px">
+  <v-dialog :value="true" @input="$emit('closeDialog')" max-width="600px">
     <v-card>
 
       <v-card-title>
         <span class="text-subtitle-2">
-          New Channel
+          {{ mode === 'NEW' ? 'New Channel' : 'Edit Channel' }}
         </span>
         <!-- <v-spacer />
         <v-btn icon color="secondary"
@@ -24,7 +24,7 @@
 
               <v-col cols="12">
                 <!-- <span>Type</span> -->
-                <v-btn-toggle v-model="channelObj.type" rounded borderless dense mandatory style="width: 100%">
+                <v-btn-toggle v-if="enableEditChannelType" v-model="channelObj.type" rounded borderless dense mandatory style="width: 100%">
                   <v-btn small style="width: 50%" value="SLACK_WEBHOOKS">
                     <span class="hidden-xs-only">Slack incoming webhooks</span>
                     <span class="hidden-sm-and-up">Slack</span>
@@ -99,6 +99,13 @@ import axios from 'axios'
 // import {EventBus} from '@/main'
 
 export default {
+  props: {
+    mode: {
+      type: String,
+      default: 'NEW' // form mode NEW | EDIT
+    },
+    channelPropObject: Object
+  },
   data: () => ({
     formValid: false,
     channelObj: {
@@ -117,10 +124,39 @@ export default {
     }
   }),
 
+  computed: {
+    enableEditChannelType () {
+      return this.mode === 'NEW'
+    }
+  },
+
+  created() {
+    if (this.mode === 'EDIT') {
+      this.channelObj.name = this.channelPropObject.name
+      this.channelObj.customText = this.channelPropObject.customText
+      if (this.channelPropObject.type === 1) {
+        this.channelObj.type = 'SLACK_WEBHOOKS'
+        this.channelObj.webhook_url = this.channelPropObject.webhook_url
+      } else {
+        this.channelObj.type = 'SMTP'
+        this.channelObj.host = this.channelPropObject.host
+        this.channelObj.port = this.channelPropObject.port
+        // this.channelObj.ssl = this.channelPropObject.ssl
+        this.channelObj.user = this.channelPropObject.user
+        this.channelObj.passwd = this.channelPropObject.passwd
+        this.channelObj.authEnable = Boolean(this.channelPropObject.user) && Boolean(this.channelPropObject.passwd)
+      }
+    }
+  },
+
   methods: {
     saveChannel () {
       console.log('TabEditorChannel::saveChannel() obj:', JSON.stringify(this.channelObj))
       let requestObj = {...this.channelObj}
+      if (typeof(requestObj.port) === 'string') {
+        // Fix bug: desktop browser convert number field to string ???
+        requestObj.port = parseInt(requestObj.port, 10)
+      }
 
       // change request to matching API (fuck GoLang)
       requestObj.type = (requestObj.type === 'SLACK_WEBHOOKS') ? 1 : 2
@@ -130,28 +166,55 @@ export default {
         requestObj.passwd = null
       }
 
-      axios.post(
-        `${this.$GCONFIG.api_base_url}/api/channels`,
-        requestObj
-      ).then(
-        response => {
-          console.log('TabEditorChannel::saveChannel() - get report response:', response)
-          if (response.data) {
-            if (response.data.status === 'success') {
-              requestObj.id = response.data.id
-              // EventBus.$emit('NEW_CHANNEL_INSERTED', requestObj)
-              this.$store.commit('ADD_ALERT_CHANNEL', requestObj)
-              this.$emit('closeDialog')
-            } else {
-              console.warn('TabEditorChannel::saveChannel() - something is wrongs at backend')
+      if (this.mode === 'NEW') {
+        axios.post(
+          `${this.$GCONFIG.api_base_url}/api/channels`,
+          requestObj
+        ).then(
+          response => {
+            console.log('TabEditorChannel::saveChannel() - create response:', response)
+            if (response.data) {
+              if (response.data.status === 'success') {
+                requestObj.id = response.data.id
+                // EventBus.$emit('NEW_CHANNEL_INSERTED', requestObj)
+                this.$store.commit('ADD_ALERT_CHANNEL', requestObj)
+                this.$emit('closeDialog')
+              } else {
+                console.warn('TabEditorChannel::saveChannel() - something is wrongs at backend when create')
+              }
             }
           }
-        }
-      ).catch(
-        error => {
-          console.log('TabEditorChannel::saveChannel() - get report error:', error)
-        }
-      )
+        ).catch(
+          error => {
+            console.log('TabEditorChannel::saveChannel() - create error:', error)
+          }
+        )
+      } else {
+        axios.put(
+          `${this.$GCONFIG.api_base_url}/api/channels/${this.channelPropObject.id}`,
+          requestObj
+        ).then(
+          response => {
+            console.log('TabEditorChannel::saveChannel() - update response:', response)
+            if (response.data) {
+              if (response.data.status === 'success') {
+                let payload = {
+                  id: this.channelPropObject.id,
+                  ...requestObj
+                }
+                this.$store.commit('UPDATE_ALERT_CHANNEL', payload)
+                this.$emit('closeDialog')
+              } else {
+                console.warn('TabEditorChannel::saveChannel() - something is wrongs at backend when update')
+              }
+            }
+          }
+        ).catch(
+          error => {
+            console.log('TabEditorChannel::saveChannel() - update error:', error)
+          }
+        )
+      } // end if
     }
   }
 }

@@ -70,17 +70,19 @@ export default {
     // Pre-fetch channel data to use for rule creation form
     axios.get(`${this.$GCONFIG.api_base_url}/api/channels`).then(
       response => {
-        console.log('TabViewChannel::created() - api response:', response)
+        console.log('Setting::mounted() - Get Channels response:', response)
         if (response.data.length > 0) {
           this.$store.commit('PURGE_ALERT_CHANNEL')
           response.data.forEach(element => {
             this.$store.commit('ADD_ALERT_CHANNEL', element)
           })
+        } else if (response.data.length === 0) {
+          this.$store.commit('PURGE_ALERT_CHANNEL')
         }
       }
     ).catch(
       error => {
-        console.log('TabViewChannel::created() - api error:', error)
+        console.log('Setting::mounted() - Get Channels error:', error)
       }
     )
   },

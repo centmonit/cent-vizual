@@ -8,7 +8,7 @@
         <v-stepper-step :complete="currentStep > 2" step="2">Filters</v-stepper-step>
         <v-divider />
 
-        <v-stepper-step step="3">Alert Configuration</v-stepper-step>
+        <v-stepper-step step="3">Alert configuration</v-stepper-step>
       </v-stepper-header>
 
       <v-stepper-items>
@@ -164,10 +164,10 @@ export default {
   }),
 
   computed: {
-    filtersModelHostArray() {
+    filtersModelHostArray () {
       return this.filters.map(item => item.modelHost)
     },
-    filtersModelServiceArray() {
+    filtersModelServiceArray () {
       return this.filters.map(item => item.modelService)
     },
     selectionHostItems () {
@@ -270,7 +270,7 @@ export default {
 
       for (let i = 0; i < ruleArray.length; i++) {
         const filter = ruleArray[i];
-        console.warn('....filter:', filter)
+        // console.warn('....filter:', filter)
         if (i === this.filters.length) {
           this.addEventFilter()
         }
@@ -356,7 +356,7 @@ export default {
                 EventBus.$emit('NEW_ALERT_RULE_INSERTED', {id: response.data.id, ...requestObj})
                 this.$emit('closeDialog')
               } else {
-                console.warn('TabEditorAlertRule::saveRule() - something is wrongs at backend')
+                console.warn('TabEditorAlertRule::saveRule() - something is wrongs at backend when create')
               }
             }
           }
@@ -377,7 +377,7 @@ export default {
                 EventBus.$emit('NEW_ALERT_RULE_UPDATED', {id: this.alertRuleObject.id, ...requestObj})
                 this.$emit('closeDialog')
               } else {
-                console.warn('TabEditorAlertRule::saveRule() - something is wrongs at backend')
+                console.warn('TabEditorAlertRule::saveRule() - something is wrongs at backend when update')
               }
             }
           }
