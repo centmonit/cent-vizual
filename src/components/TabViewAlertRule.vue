@@ -30,23 +30,31 @@
 
   <TabEditorAlertRule v-if="showEditForm" @closeDialog="showEditForm=false"
                       mode="EDIT" :alertRuleObject="editedObject" />
+
+  <ConfirmDialog v-if="showDeleteConfirm"
+                @closeDialog="showDeleteConfirm=false"
+                @agreeConfirm="processAgreeConfirm" />
 </div>
 </template>
 
 <script>
 import axios from 'axios'
 import TabEditorAlertRule from '@/components/TabEditorAlertRule'
+import ConfirmDialog from '@/components/ConfirmDialog'
 import {EventBus} from '@/main'
 
 export default {
   components: {
-    TabEditorAlertRule
+    TabEditorAlertRule,
+    ConfirmDialog
   },
 
   data: () => ({
     alertRules: [],
     showEditForm: false,
-    editedObject: {}
+    editedObject: {},
+    showDeleteConfirm: false,
+    deletionPayload: {}
   }),
 
   computed: {
@@ -170,6 +178,19 @@ export default {
       this.editedObject = this.alertRules[index]
     },
     deleteRow (id, index) {
+      this.showDeleteConfirm = true
+      this.deletionPayload = {
+        id: id,
+        index: index
+      }
+    },
+    processAgreeConfirm () {
+      if (this.deletionPayload.id && this.deletionPayload.index >= 0) {
+        this.__delete_row_helper__(this.deletionPayload.id, this.deletionPayload.index)
+      }
+      this.showDeleteConfirm = false
+    },
+    __delete_row_helper__ (id, index) {
       axios.delete(`${this.$GCONFIG.api_base_url}/api/alert-rules/${id}`).then(
         response => {
           console.log('TabViewAlertRule::deleteRow() - get report response:', response)

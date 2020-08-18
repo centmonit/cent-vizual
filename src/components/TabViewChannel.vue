@@ -80,6 +80,10 @@
     <TabEditorChannel v-if="showEditForm" @closeDialog="showEditForm=false"
                       mode="EDIT" :channelPropObject="editedObject" />
 
+    <ConfirmDialog v-if="showDeleteConfirm"
+                @closeDialog="showDeleteConfirm=false"
+                @agreeConfirm="processAgreeConfirm" />
+
   </v-container>
 </template>
 
@@ -88,15 +92,18 @@ import axios from 'axios'
 // import {EventBus} from '@/main'
 import {mapState} from 'vuex'
 import TabEditorChannel from '@/components/TabEditorChannel'
+import ConfirmDialog from '@/components/ConfirmDialog'
 
 export default {
   components: {
-    TabEditorChannel
+    TabEditorChannel,
+    ConfirmDialog
   },
 
   data: () => ({
     showEditForm: false,
-    editedObject: {}
+    editedObject: {},
+    showDeleteConfirm: false
   }),
 
   computed: {
@@ -134,6 +141,18 @@ export default {
       }
     },
     removeChannel (id) {
+      this.showDeleteConfirm = true
+      this.deletionPayload = {
+        id: id
+      }
+    },
+    processAgreeConfirm () {
+      if (this.deletionPayload.id) {
+        this.__remove_channel_helper__(this.deletionPayload.id)
+      }
+      this.showDeleteConfirm = false
+    },
+    __remove_channel_helper__ (id) {
       console.log('TabViewChannel::removeChannel() with id:', id)
       axios.delete(`${this.$GCONFIG.api_base_url}/api/channels/${id}`).then(
         response => {
