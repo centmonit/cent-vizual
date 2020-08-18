@@ -164,6 +164,16 @@ export default {
       if (!requestObj.authEnable) {
         requestObj.user = null
         requestObj.passwd = null
+      } else {
+        requestObj.user = requestObj.user.trim()
+        requestObj.passwd = requestObj.passwd.trim()
+      }
+
+      if (requestObj.host) {
+        requestObj.host = requestObj.host.trim()
+      }
+      if (requestObj.webhook_url) {
+        requestObj.webhook_url = requestObj.webhook_url.trim()
       }
 
       if (this.mode === 'NEW') {
