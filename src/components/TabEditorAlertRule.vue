@@ -24,7 +24,7 @@
             </v-container>
           </v-form>
 
-          <v-btn text color="primary" @click="currentStep = 2">Next</v-btn>
+          <v-btn text color="primary" @click="currentStep = 2" :disabled="disableStep2">Next</v-btn>
           <v-btn text @click="$emit('closeDialog')">Close</v-btn>
         </v-stepper-content>
 
@@ -80,7 +80,7 @@
             </v-container>
           </v-form>
 
-          <v-btn text color="primary" @click="currentStep = 3">Next</v-btn>
+          <v-btn text color="primary" @click="currentStep = 3" :disabled="disableStep3">Next</v-btn>
           <v-btn text @click="$emit('closeDialog')">Close</v-btn>
         </v-stepper-content>
 
@@ -115,7 +115,7 @@
             </v-container>
           </v-form>
 
-          <v-btn text color="primary" @click="saveRule">Save</v-btn>
+          <v-btn text color="primary" @click="saveRule" :disabled="disableSave">Save</v-btn>
           <v-btn text @click="$emit('closeDialog')">Close</v-btn>
         </v-stepper-content>
 
@@ -138,7 +138,6 @@ export default {
   },
   data: () => ({
     currentStep: 1,
-
     ruleName: 'Default rule',
 
     filters: [
@@ -175,7 +174,24 @@ export default {
     },
     firstHostModel () {
       return this.filters[0].modelHost
-    }
+    },
+    disableStep2 () {
+      return !this.ruleName
+    },
+    disableStep3 () {
+      return !this.filters[0].modelHost || !this.filters[0].modelService.length > 0
+    },
+    disableSave () {
+      // console.error('disableSave invoke with:', JSON.stringify(this.modelAlertChannel))
+      if (this.modelAlertChannel.type === this.alertChannels[1]) {
+        return !this.modelAlertChannel.value || !this.modelAlertChannel.smtpReceivers
+      } else if (this.modelAlertChannel.type === this.alertChannels[0]) {
+        return !this.modelAlertChannel.value
+      } else {
+        return true
+      }
+    },
+
   },
 
   watch: {
@@ -257,6 +273,14 @@ export default {
         } // end for
       },
       deep: true
+    },
+    'modelAlertChannel.type': function(newVal, previousVal) {
+      console.log('modelAlertChannel type: newVal:', newVal, ' - oldVal:', previousVal)
+      if (newVal && previousVal)  {
+        this.modelAlertChannel.name = null
+        this.modelAlertChannel.value = null
+        this.modelAlertChannel.smtpReceivers = null
+      }
     }
   },
 
