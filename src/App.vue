@@ -126,11 +126,13 @@
           <!-- ---------------------------------------- -->
 
           <v-row class="justify-center">
-            <span :class="[lastReportTimeStyleClass]" style="color: #2196F3">
-              Good hosts: {{ totalGoodHosts() }}/{{ Object.keys(hostsState).length }}
+            <div :class="[lastReportTimeStyleClass]" style="color: #2196F3">
+              <span class="text-lowercase text-caption">Healthy hosts</span>&nbsp;
+              <span class="text-subtitle-2">{{ totalGoodHosts() }}/{{ Object.keys(hostsState).length }}</span>
               -
-              Last report: {{ lastHostsReportTime.toLocaleString() }}
-            </span>
+              <span class="text-lowercase text-caption">Last report</span>&nbsp;
+              <span class="text-subtitle-2">{{ lastHostsReportTime.toLocaleString() }}</span>
+            </div>
           </v-row>
           <v-row>
               <v-col v-for="(item, index) in hostsReport" _key="index" :key="`${index}-${item.alertMessage}`"
