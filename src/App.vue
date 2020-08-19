@@ -385,7 +385,7 @@ export default {
           })
         }
       })
-    }, 10*1000); // 5 mins
+    }, 30*1000); // 30 secs
     localStorage.setItem(sKey, jobID)
     console.log('Saved background job with id', jobID)
   },
