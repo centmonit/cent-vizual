@@ -4,10 +4,10 @@
     <v-row v-for="rowIndex in Math.ceil(alert_channels.length/3)" :key="`row-${rowIndex}`">
       <template v-for="colIndex in 3">
         <v-col v-if="(rowIndex-1)*3+(colIndex-1) < alert_channels.length" :key="`col-${rowIndex}-${colIndex}`">
-          <v-card min-height="215" min-width="195">
+          <v-card min-height="195" min-width="195">
             <v-card-title>
               <v-icon small left>{{ getChannelTypeIcon(alert_channels[(rowIndex-1)*3+(colIndex-1)].type) }}</v-icon>
-              <span class="text-subtitle-2 d-inline-block _text-truncate" :style="cardTitleNameStyle">{{ alert_channels[(rowIndex-1)*3+(colIndex-1)].name }}</span>
+              <span class="text-subtitle-2 _d-inline-block _text-truncate" _style="cardTitleNameStyle">{{ alert_channels[(rowIndex-1)*3+(colIndex-1)].name }}</span>
 
               <v-spacer />
               <v-btn icon @click="editChannel(alert_channels[(rowIndex-1)*3+(colIndex-1)])"><v-icon small>mdi-pencil</v-icon></v-btn>
@@ -19,7 +19,7 @@
               <div>
                 <span class="text-caption text--disabled">Sender</span>&nbsp;&nbsp;&nbsp;
                 <span class="text-body-2">
-                  {{ alert_channels[(rowIndex-1)*3+(colIndex-1)].customText ? alert_channels[(rowIndex-1)*3+(colIndex-1)].customText : 'n/a' }}
+                  {{ alert_channels[(rowIndex-1)*3+(colIndex-1)].customText }}
                 </span>
               </div>
               <div>
@@ -31,12 +31,10 @@
             <!-- SMTP -->
             <v-card-text v-else>
               <div>
-                <span class="text-caption text--disabled">Host</span>&nbsp;&nbsp;&nbsp;
-                <span class="text-body-2">{{ alert_channels[(rowIndex-1)*3+(colIndex-1)].host }}</span>
-              </div>
-              <div>
-                <span class="text-caption text--disabled">Port</span>&nbsp;&nbsp;&nbsp;
-                <span class="text-body-2">{{ alert_channels[(rowIndex-1)*3+(colIndex-1)].port }}</span>
+                <span class="text-caption text--disabled">Server</span>&nbsp;
+                <span class="text-body-2">
+                  {{ alert_channels[(rowIndex-1)*3+(colIndex-1)].host }}:{{ alert_channels[(rowIndex-1)*3+(colIndex-1)].port }}
+                </span>
               </div>
               <!-- <div>
                 <span class="text-caption text--disabled">SSL</span>&nbsp;&nbsp;&nbsp;
@@ -46,9 +44,10 @@
               </div> -->
 
               <div>
-                <span class="text-caption text--disabled">Sender</span>&nbsp;&nbsp;&nbsp;
+                <span class="text-caption text--disabled">Sender</span>&nbsp;
                 <span class="text-body-2">
-                  {{ alert_channels[(rowIndex-1)*3+(colIndex-1)].customText ? alert_channels[(rowIndex-1)*3+(colIndex-1)].customText : 'n/a' }}
+                  {{ alert_channels[(rowIndex-1)*3+(colIndex-1)].customText }}
+                  &lt;{{ alert_channels[(rowIndex-1)*3+(colIndex-1)].senderAddress }}&gt;
                 </span>
               </div>
 

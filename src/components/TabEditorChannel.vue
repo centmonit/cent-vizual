@@ -48,8 +48,12 @@
                   <v-text-field label="Server port*"  type="number" v-model="channelObj.port" clearable />
                 </v-col>
 
+                <v-col cols="12">
+                  <v-text-field label="Sender address*" v-model="channelObj.senderAddress" clearable />
+                </v-col>
+
                 <v-col cols="8" sm="8">
-                  <v-text-field label="Sender Name*" v-model="channelObj.customText" clearable
+                  <v-text-field label="Sender name*" v-model="channelObj.customText" clearable
                                 :persistent-hint="true"
                                 hint="Use this field to differentiate alert messages from different Systems/Datacenters" />
                 </v-col>
@@ -120,7 +124,8 @@ export default {
       user: null,
       passwd: null,
       authEnable: false,
-      customText: 'CentMonit'
+      customText: 'CentMonit',
+      senderAddress: 'example@email.com'
     }
   }),
 
@@ -135,6 +140,7 @@ export default {
         return (
           !this.channelObj.name ||
           !this.channelObj.customText ||
+          !this.channelObj.senderAddress ||
           !this.channelObj.host ||
           !this.channelObj.port || (
             this.channelObj.authEnable && (!this.channelObj.user || !this.channelObj.passwd)
@@ -159,6 +165,7 @@ export default {
         this.channelObj.user = this.channelPropObject.user
         this.channelObj.passwd = this.channelPropObject.passwd
         this.channelObj.authEnable = Boolean(this.channelPropObject.user) && Boolean(this.channelPropObject.passwd)
+        this.channelObj.senderAddress = this.channelPropObject.senderAddress
       }
     }
   },
