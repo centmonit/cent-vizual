@@ -80,7 +80,7 @@
                 </v-col>
                 <v-col cols="12">
                   <v-text-field label="Webhook URL*" v-model="channelObj.webhook_url"
-                                append-icon="mdi-help-circle"
+                                append-icon="mdi-help-circle-outline"
                                 :persistent-hint="true"
                                 hint="Click help icon on the right for Slack webhook tutorial"
                                 @click:append="openSlackWebhookHelp"
