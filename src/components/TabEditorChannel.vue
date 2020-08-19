@@ -79,7 +79,12 @@
                                 hint="Use this field to differentiate alert messages from different Systems/Datacenters" />
                 </v-col>
                 <v-col cols="12">
-                  <v-text-field label="Webhook URL*" v-model="channelObj.webhook_url" clearable />
+                  <v-text-field label="Webhook URL*" v-model="channelObj.webhook_url"
+                                append-icon="mdi-help-circle"
+                                :persistent-hint="true"
+                                hint="Click help icon on the right for Slack webhook tutorial"
+                                @click:append="openSlackWebhookHelp"
+                                clearable />
                 </v-col>
               </template>
 
@@ -246,6 +251,9 @@ export default {
           }
         )
       } // end if
+    },
+    openSlackWebhookHelp () {
+      window.open('https://slack.com/intl/en-vn/help/articles/115005265063-Incoming-Webhooks-for-Slack', '_blank')
     }
   }
 }
