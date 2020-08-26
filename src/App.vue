@@ -45,6 +45,10 @@
       <v-btn icon @click="showSettingDialog=true">
         <v-icon>mdi-cog</v-icon>
       </v-btn>
+
+      <v-btn icon @click="showLicenseDialog=true">
+        <v-icon>mdi-shield-key</v-icon>
+      </v-btn>
     </v-app-bar>
 
     <!-- <v-navigation-drawer v-model="drawerRight" app clipped right>
@@ -211,6 +215,7 @@
 
         <!-- Setting dialog -->
         <Setting v-if="showSettingDialog" @closeDialog="showSettingDialog=false"/>
+        <License v-if="showLicenseDialog" @closeDialog="showLicenseDialog=false"/>
 
       </v-container>
     </v-main>
@@ -222,7 +227,7 @@
       </div>
       <v-spacer/>
       <div _class="mr-3 hidden-xs-only" class="font-italic caption">
-          Version {{ APP_VERSION }}
+          CentMonit {{ APP_VERSION }}
       </div>
     </v-footer>
   </v-app>
@@ -231,6 +236,7 @@
 <script>
 import HostCard from './components/HostCard'
 import Setting from './components/Setting'
+import License from './components/License'
 import axios from 'axios'
 import {mapState} from 'vuex'
 
@@ -239,7 +245,8 @@ export default {
 
   components: {
     HostCard,
-    Setting
+    Setting,
+    License
   },
 
   data: () => ({
@@ -291,7 +298,8 @@ export default {
       /* id : timestamp */
     },
 
-    showSettingDialog: false
+    showSettingDialog: false,
+    showLicenseDialog: false
   }),
 
   computed: {
