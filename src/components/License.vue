@@ -16,7 +16,7 @@
           <span v-html="licenseInfo"></span>
           <template v-slot:actions>
             <v-btn text @click="showRegisterDialog=true">Register</v-btn>
-            <v-btn text color="primary">Purchase</v-btn>
+            <v-btn text @click="showPurchaseDialog=true" color="primary">Purchase</v-btn>
           </template>
         </v-banner>
 
@@ -40,26 +40,36 @@
           </template>
         </v-simple-table>
         <small>
-          * If you need something not listed here, pls contact us at <span class="font-weight-bold">support@centmonit.com</span>
+          * If you need something not listed here, pls contact us at
+           <span class="font-weight-bold">{{ VUE_APP_SUPPORT_EMAIL }}</span>
         </small>
+        <input type="hidden" id="mailTo" :value="VUE_APP_SUPPORT_EMAIL" >
+        <v-btn icon x-small  @click="MixClipboardCopy('mailTo')">
+          <v-icon x-small>mdi-content-copy</v-icon>
+        </v-btn>
       </v-card-text>
 
     </v-card>
 
     <LicenseRegister v-if="showRegisterDialog" @closeDialog="showRegisterDialog=false" />
+    <LicensePurchase v-if="showPurchaseDialog" @closeDialog="showPurchaseDialog=false" />
 
   </v-dialog>
 </template>
 
 <script>
 import LicenseRegister from '@/components/LicenseRegister'
+import LicensePurchase from '@/components/LicensePurchase'
 import {EventBus} from '@/main'
 import axios from 'axios'
+import {appMixins} from '@/app-mixins'
 
 export default {
   components: {
-    LicenseRegister
+    LicenseRegister,
+    LicensePurchase
   },
+  mixins: [appMixins],
 
   data: () => ({
     priceTable: [
@@ -84,7 +94,9 @@ export default {
       }
     ],
     showRegisterDialog: false,
-    licensePayload: null // instMacAddr; agents
+    licensePayload: null, // instMacAddr; agents
+
+    showPurchaseDialog: false
   }),
 
   computed: {
